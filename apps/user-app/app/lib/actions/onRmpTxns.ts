@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "../auth"
 import prisma from "@repo/db/client";
 
-export const onRampTransaction =async (amount:number , provider:string)=>{
+export const onRampTransaction = async (amount:number , provider:string)=>{
     const session = await getServerSession(authOptions) ; //gives us the current user  .
     const userId = session.user.id ;
     const token = Math.random().toString(12) ; //random token 

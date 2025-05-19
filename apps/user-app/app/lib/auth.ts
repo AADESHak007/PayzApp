@@ -7,6 +7,8 @@ export const authOptions = {
       CredentialsProvider({
           name: 'Credentials',
           credentials: {
+            name: {label:"Name" , type:"string" , placeholder:"John Doe" , required: false},
+            email: {label:"Email" , type:"string" , placeholder:"john@doe.com" , required: false},
             phone: { label: "Phone number", type: "text", placeholder: "1231231231", required: true },
             password: { label: "Password", type: "password", required: true }
           },
@@ -29,12 +31,17 @@ export const authOptions = {
                         email: existingUser.number
                     }
                 }
-                return null;
             }
+            // Create a new user if not exists
 
             try {
                 const user = await db.user.create({
                     data: {
+                        name:credentials.name,
+                        email: credentials.email,
+                        Balance :{
+                            create:{}
+                        } ,
                         number: credentials.phone,
                         password: hashedPassword
                     }

@@ -1,4 +1,5 @@
-FROM node:20.12.0-alpine3.19
+FROM node:20.12.0-alpine3.19 
+#update the container image to the latest version
 
 WORKDIR /usr/src/app
 
