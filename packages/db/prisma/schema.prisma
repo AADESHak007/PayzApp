@@ -20,10 +20,11 @@ model User {
 }
 
 model Merchant {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  auth_type AuthType
+  id               Int      @id @default(autoincrement())
+  email            String   @unique
+  MerchantBalance  MerchantBalance?
+  name             String?
+  auth_type        AuthType?
 }
 
 model p2pTransfer {
@@ -52,6 +53,15 @@ model Balance {
   amount Int  @default(2000)
   locked Int  @default(0)
   user   User @relation(fields: [userId], references: [id])
+}
+model MerchantBalance {
+  id          Int      @id @default(autoincrement())
+  merchantId  Int      @unique
+  merchant    Merchant @relation(fields: [merchantId], references: [id])
+  amount      Int  @default(2000)
+  locked      Int  @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum AuthType {
