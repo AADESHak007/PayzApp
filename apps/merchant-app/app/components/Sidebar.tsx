@@ -29,7 +29,12 @@ const Sidebar = () => {
         </nav>
         <div className="mt-8">
           <div className="text-xs text-white/80 mb-2">Accept Payments</div>
-          <a className="hover:bg-white/10 rounded px-3 py-2 block" href="#">My QR Code</a>
+          <a
+            className={`rounded px-3 py-2 ${pathname === '/myqrcode' ? 'font-bold bg-white/20' : 'hover:bg-white/10'}`}
+            href="/myqrcode"
+          >
+            My QR Code
+          </a>
         </div>
         <button
           onClick={() => signOut()}

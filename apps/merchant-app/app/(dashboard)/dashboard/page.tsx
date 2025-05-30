@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
 import DashboardClient from "../../components/DashboardClient";
+import getMerachantBalance from "../../../lib/actions/merchantBalance";
 
 
 
@@ -17,5 +18,6 @@ async function getMerchant() {
 
 export default async function DashboardPage() {
     const merchant = await getMerchant();
-    return <DashboardClient merchant={merchant} />;
+    const merchantBalance = await getMerachantBalance();
+    return <DashboardClient merchant={merchant} merchantBalance={merchantBalance} />;
 } 

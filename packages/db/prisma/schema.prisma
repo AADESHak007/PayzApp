@@ -25,6 +25,7 @@ model Merchant {
   MerchantBalance  MerchantBalance?
   name             String?
   auth_type        AuthType?
+  password         String?  // required for credentials auth
 }
 
 model p2pTransfer {
@@ -67,6 +68,7 @@ model MerchantBalance {
 enum AuthType {
   Google
   Github
+  Credentials
 }
 
 enum OnRampStatus {

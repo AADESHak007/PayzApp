@@ -1,19 +1,31 @@
 import React from 'react'
-import SignUpLogin from './SignUpLogin';
-import { authOptions } from '../../lib/auth';
-import db from '@repo/db/client';
-import { getServerSession } from "next-auth";
+// import SignUpLogin from './SignUpLogin';
 
-interface MerchantProps {
+
+interface DashboardClientProps {
   merchant: {
     id?: string | number;
     name?: string;
     email?: string;
   } | null;
+  merchantBalance: {
+    balance?: number | string;
+    locked?: number | string;
+  } | null;
 }
 
-const DashboardClient = async ({ merchant }: MerchantProps) => {
-  const balance = await getMerchantBalance() 
+const DashboardClient = async ({ merchant, merchantBalance }: DashboardClientProps) => {
+  console.log("merchantBalance", merchantBalance);
+
+  if (!merchantBalance) {
+    return <div>Loading balance...</div>;
+  }
+
+  const displayBalance = merchantBalance.balance ?? 0;
+  const displayLocked = merchantBalance.locked ?? 0;
+  const isMissing = merchantBalance.balance === undefined && merchantBalance.locked === undefined;
+
+  console.log("balance", merchantBalance.balance)
   return (
     <section className="flex-1 p-8">
       
@@ -26,7 +38,9 @@ const DashboardClient = async ({ merchant }: MerchantProps) => {
             <h2 className="text-sm text-gray-600 mb-1">
                 Email: {merchant?.email || "Please register your EMAIL"}
             </h2>
-            
+            {isMissing && (
+              <div className="text-red-500 text-xs mb-2">No balance record found for this merchant.</div>
+            )}
             {/* Balance Section */}
             <div className="flex flex-col gap-2">
                 {/* Total Balance */}
@@ -34,7 +48,7 @@ const DashboardClient = async ({ merchant }: MerchantProps) => {
                     <span>Balance:</span>
                     <span className="flex items-center gap-1 text-green-600">
                         <CurrencyRupee />
-                        {balance?.amount ?? "Loading..."}
+                        {displayBalance}
                     </span>
                 </h2>
                 {/* Locked Balance */}
@@ -42,7 +56,7 @@ const DashboardClient = async ({ merchant }: MerchantProps) => {
                     <span>Locked Balance:</span>
                     <span className="flex items-center gap-1 text-red-500">
                         <CurrencyRupee />
-                        {balance?.locked ?? "Loading..."}
+                        {displayLocked}
                     </span>
                 </h2>
             </div>
@@ -54,27 +68,7 @@ const DashboardClient = async ({ merchant }: MerchantProps) => {
 
 export default DashboardClient;
 
-async function getMerchantBalance() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return { amount: "N/A", locked: "N/A" };
-  }
-  const merchant = await db.merchant.findUnique({
-    where: { id: Number(session.user.id) }, // Remove Number() if id is a string
-    select: {
-      MerchantBalance: {
-        select: {
-          amount: true,
-          locked: true
-        }
-      }
-    }
-  });
-  return {
-    amount: merchant?.MerchantBalance?.amount ,
-    locked: merchant?.MerchantBalance?.locked 
-  };
-}
+
 
 function CurrencyRupee() {
   return (
