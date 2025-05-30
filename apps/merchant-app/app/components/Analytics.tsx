@@ -1,59 +1,100 @@
-"use client"
-
 import React from 'react'
+import { authOptions } from '../../lib/auth'
+import { getServerSession } from 'next-auth/next'
+import db from "@repo/db/client"
 
-const Analytics = () => {
+const getMerchantTransactions =  async ()=>{
+  const session =  await getServerSession(authOptions)
+  if (!session) {
+    throw new Error('Unauthorized , Please login to continue .... ')
+  }
+  const merchantId = session.user.id ;
+  try {
+    const transactions = await db.merchant.findMany({
+      where : {
+        id: Number(merchantId)
+      },
+      select : {
+        receivedUserTransfers:{
+          select: {
+            id: true,
+            amount: true,
+            timestamp: true,
+            fromUser: {
+              select: {
+                id: true,
+                name: true
+              }
+            }
+          }
+        }
+      }
+    })
+  
+    return transactions ;
+
+  } catch (error) {
+    console.error('Error fetching merchant transactions:', error)
+    throw new Error('Failed to fetch merchant transactions')
+    
+  }
+}
+
+
+
+const Analytics = async () => {
+  const transactions = await getMerchantTransactions();
+  if (!transactions || transactions.length === 0){
+    return (
+      <section className="flex-1 p-8">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="text-gray-500 text-sm mb-4">No transactions found for this merchant.</div>
+        </div>
+      </section>
+    )
+  }
+
+  const arr =  transactions[0].receivedUserTransfers.map((t)=>{
+    return {
+      amount: t.amount,
+      timestamp: t.timestamp.toLocaleTimeString(),
+      fromUser: {
+        id: t.fromUser.id,
+        name: t.fromUser.name
+      }
+    }
+  })
+  const sum  = arr.reduce((acc,t) => acc + t.amount, 0);
+
   return (
     <section className="flex-1 p-8">
     <div className="grid grid-cols-2 gap-6 mb-8">
       <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
         <div className="text-gray-500 text-sm mb-1">No. of Transactions</div>
-        <div className="text-3xl font-bold text-gray-800">56,560</div>
+        <div className="text-3xl font-bold text-blue-800">{arr.length}</div>
       </div>
       <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
         <div className="text-gray-500 text-sm mb-1">Transactions Amount</div>
-        <div className="text-3xl font-bold text-gray-800">₹ 3,78,079</div>
+        <div className="text-3xl font-bold text-gray-800"> ₹ {Number(sum/100)}</div>
       </div>
     </div>
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-4">
         <div className="text-lg font-semibold text-gray-800">Recent Transactions</div>
-        <button className="bg-[#ede9fe] text-[#6a51a6] px-4 py-2 rounded hover:bg-[#d1c4e9]">Overlay Success Rate</button>
+        
       </div>
-      <table className="w-full text-left">
-        <thead>
-          <tr className="text-gray-500 text-sm border-b">
-            <th className="py-2">Date</th>
-            <th className="py-2">Time</th>
-            <th className="py-2">Payment Amount</th>
-            <th className="py-2">Deduction</th>
-            <th className="py-2">Net Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr className="border-b hover:bg-gray-50">
-            <td className="py-2">28 Aug<br /><span className="text-xs text-gray-400">UTR: 023977XXXX</span></td>
-            <td className="py-2">06:49 AM</td>
-            <td className="py-2">₹ 10,000</td>
-            <td className="py-2">₹ 2,000</td>
-            <td className="py-2">₹ 8,000</td>
-          </tr>
-          <tr className="border-b hover:bg-gray-50">
-            <td className="py-2">27 Aug<br /><span className="text-xs text-gray-400">UTR: 023477XXXX</span></td>
-            <td className="py-2">10:23 PM</td>
-            <td className="py-2">₹ 45,000</td>
-            <td className="py-2">₹ 1,000</td>
-            <td className="py-2">₹ 44,000</td>
-          </tr>
-          <tr className="hover:bg-gray-50">
-            <td className="py-2">26 Aug<br /><span className="text-xs text-gray-400">UTR: 053277XXXX</span></td>
-            <td className="py-2">02:34 AM</td>
-            <td className="py-2">₹ 74,000</td>
-            <td className="py-2">₹ 4,000</td>
-            <td className="py-2">₹ 70,000</td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="space-y-4">
+        {arr.map((t, index) => (
+          <div key={index} className="flex justify-between items-center p-4 border-b last:border-b-0">
+            <div>
+              <div className="text-sm text-gray-600">Received from {t.fromUser.name}</div>
+              <div className="text-xs text-gray-400">{t.timestamp}</div>
+            </div>
+            <div className="text-lg font-semibold text-green-600">₹ {t.amount / 100}</div>
+          </div>
+        ))}
+    </div>
+      
     </div>
   </section>
   )

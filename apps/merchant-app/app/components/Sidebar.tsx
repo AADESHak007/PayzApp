@@ -21,11 +21,7 @@ const Sidebar = () => {
           >
             Analytics
           </a>
-          <a className="hover:bg-white/10 rounded px-3 py-2" href="#">Transactions</a>
-          <a className="hover:bg-white/10 rounded px-3 py-2" href="#">Settlements</a>
           <a className="hover:bg-white/10 rounded px-3 py-2" href="#">Refunds</a>
-          <a className="hover:bg-white/10 rounded px-3 py-2" href="#">Chargebacks</a>
-          <a className="hover:bg-white/10 rounded px-3 py-2" href="#">Report</a>
         </nav>
         <div className="mt-8">
           <div className="text-xs text-white/80 mb-2">Accept Payments</div>
