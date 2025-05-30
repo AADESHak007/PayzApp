@@ -8,24 +8,27 @@ datasource db {
 }
 
 model User {
-  id                Int                 @id @default(autoincrement())
-  email             String?             @unique
-  name              String?
-  number            String              @unique
-  password          String
-  OnRampTransaction OnRampTransaction[]
-  Balance           Balance[]
-  sentTransfers      p2pTransfer[]       @relation(name:"FromUserRelation")
+  id                     Int                 @id @default(autoincrement())
+  email                  String?             @unique
+  name                   String?
+  number                 String              @unique
+  password               String
+  OnRampTransaction      OnRampTransaction[]
+  Balance                Balance[]
+  sentTransfers          p2pTransfer[]       @relation(name:"FromUserRelation")
   recievedTransfers      p2pTransfer[]       @relation(name:"ToUserRelation")
+  sentMerchantTransfers  merchantTransfer[] @relation(name:"FromUserRelation")
+
 }
 
 model Merchant {
-  id               Int      @id @default(autoincrement())
-  email            String   @unique
-  MerchantBalance  MerchantBalance?
-  name             String?
-  auth_type        AuthType?
-  password         String?  // required for credentials auth
+  id                    Int      @id @default(autoincrement())
+  email                 String   @unique
+  MerchantBalance       MerchantBalance?
+  name                  String?
+  auth_type             AuthType?
+  password              String?  // required for credentials auth
+  receivedUserTransfers merchantTransfer[] @relation(name:"ToMerchantRelation")
 }
 
 model p2pTransfer {
@@ -37,6 +40,16 @@ model p2pTransfer {
   toUserId   Int
   toUser     User       @relation(name:"ToUserRelation", fields: [toUserId],references: [id])
 }
+model merchantTransfer {
+  id        Int          @id @default(autoincrement())
+  amount    Int
+  timestamp DateTime
+  fromUserId Int
+  fromUser   User       @relation(name:"FromUserRelation", fields: [fromUserId],references: [id])
+  toMerchantId Int
+  toMerchant Merchant   @relation(name:"ToMerchantRelation" ,fields: [toMerchantId], references: [id])
+}
+
 model OnRampTransaction {
   id        Int          @id @default(autoincrement())
   status    OnRampStatus

@@ -21,7 +21,9 @@ const DashboardClient = async ({ merchant, merchantBalance }: DashboardClientPro
     return <div>Loading balance...</div>;
   }
 
-  const displayBalance = merchantBalance.balance ?? 0;
+  const displayBalance = merchantBalance.balance !== undefined && merchantBalance.balance !== null
+    ? Number(merchantBalance.balance) / 100
+    : 0;
   const displayLocked = merchantBalance.locked ?? 0;
   const isMissing = merchantBalance.balance === undefined && merchantBalance.locked === undefined;
 
